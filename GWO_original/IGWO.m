@@ -12,7 +12,7 @@ Delta_pos=zeros(1,dim);
 Delta_score=inf; %change this to -inf for maximization problems
 
 %Initialize the positions of search agents
-Positions=initialization(SearchAgents_no,dim,ub,lb);
+Positions=Logstic_initialization(SearchAgents_no,dim,ub,lb);
 
 Convergence_curve=zeros(1,Max_iter);
 
@@ -61,9 +61,9 @@ while l<Max_iter
     a=2-l*((2)/Max_iter); % a decreases linearly fron 2 to 0
 
 
-    [Alpha_pos, Alpha_score] = update_wolf(l, Max_iter, Positions, dim, fobj, lb, ub, Alpha_score, Alpha_pos);
-    [Beta_pos, Beta_score] = update_wolf(l, Max_iter, Positions, dim, fobj, lb, ub, Beta_score, Beta_pos);
-    [Delta_pos, Delta_score] = update_wolf(l, Max_iter, Positions, dim, fobj, lb, ub, Delta_score, Delta_pos);
+%     [Alpha_pos, Alpha_score] = update_wolf(l, Max_iter, Positions, dim, fobj, lb, ub, Alpha_score, Alpha_pos);
+%     [Beta_pos, Beta_score] = update_wolf(l, Max_iter, Positions, dim, fobj, lb, ub, Beta_score, Beta_pos);
+%     [Delta_pos, Delta_score] = update_wolf(l, Max_iter, Positions, dim, fobj, lb, ub, Delta_score, Delta_pos);
 
     
     % Update the Position of search agents including omegas
@@ -97,8 +97,8 @@ while l<Max_iter
             D_delta=abs(C3*Delta_pos(j)-Positions(i,j)); % Equation (3.5)-part 3
             X3=Delta_pos(j)-A3*D_delta; % Equation (3.5)-part 3             
             
-            %Positions(i,j)=(X1+X2+X3)/3;% Equation (3.7)
-            Positions(i,j) = (X1 * Alpha_score + X2 * Beta_score + X3 * Delta_score) / (Alpha_score + Beta_score + Delta_score);
+            Positions(i,j)=(X1+X2+X3)/3;% Equation (3.7)
+            %Positions(i,j) = (X1 * Alpha_score + X2 * Beta_score + X3 * Delta_score) / (Alpha_score + Beta_score + Delta_score);
         end
     end
 
