@@ -37,7 +37,7 @@ for kw = 1:22
     if kw == 17
         continue
     end
-    SearchAgents_no=50; % Number of search agents
+    SearchAgents_no=100; % Number of search agents
     Function_name=strcat('F', num2str(kw)); % Name of the test function that can be from F1 to F23 (Table 1,2,3 in the paper)
 
     Max_iteration=500; % Maximum numbef of iterations

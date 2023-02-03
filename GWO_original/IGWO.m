@@ -11,6 +11,9 @@ Beta_score=inf; %change this to -inf for maximization problems
 Delta_pos=zeros(1,dim);
 Delta_score=inf; %change this to -inf for maximization problems
 
+Worse_pos=zeros(1,dim);
+Worse_score=-inf;
+
 %Initialize the positions of search agents
 Positions=Logstic_initialization(SearchAgents_no,dim,ub,lb);
 
@@ -55,19 +58,31 @@ while l<Max_iter
             Delta_score=fitness; % Update delta
             Delta_pos=Positions(i,:);
         end
+
+        if fitness>Worse_score
+            Worse_score=fitness;
+            Worse_pos=Positions(i,:);
+        end
     end
     
     
     a=2-l*((2)/Max_iter); % a decreases linearly fron 2 to 0
 
+    range_x = (Max_iter - l)/Max_iter;
+    range_y = (1-range_x)/3;
+
+    normal_sum = round(range_x*SearchAgents_no);
+    levy_sum = round(range_y*SearchAgents_no);
+    brownian_sum = round(range_y*SearchAgents_no);
+    de_sum = SearchAgents_no-normal_sum-levy_sum-brownian_sum;
 
 %     [Alpha_pos, Alpha_score] = update_wolf(l, Max_iter, Positions, dim, fobj, lb, ub, Alpha_score, Alpha_pos);
 %     [Beta_pos, Beta_score] = update_wolf(l, Max_iter, Positions, dim, fobj, lb, ub, Beta_score, Beta_pos);
 %     [Delta_pos, Delta_score] = update_wolf(l, Max_iter, Positions, dim, fobj, lb, ub, Delta_score, Delta_pos);
 
-    
-    % Update the Position of search agents including omegas
-    for i=1:size(Positions,1) % wolves
+
+    % Update the Position of search agents
+    for i=1:normal_sum % wolves
         for j=1:size(Positions,2) % dim
                        
             r1=rand(); % r1 is a random number in [0,1]
@@ -102,8 +117,60 @@ while l<Max_iter
         end
     end
 
- 
+%     Alpha_pos_new = Alpha_pos + levy_flight()*(Worse_pos-Alpha_pos);
+%     Beta_pos_new = Beta_pos + levy_flight()*(Worse_pos-Beta_pos);
+%     Delta_pos_new = Delta_pos + levy_flight()*(Worse_pos-Delta_pos);
+% 
+%     if Alpha_score > fobj(Alpha_pos_new)
+%         Alpha_pos = Alpha_pos_new;
+%         Alpha_score = fobj(Alpha_pos_new);
+%     end
+%     if Beta_score > fobj(Beta_pos_new)
+%         Beta_pos = Beta_pos_new;
+%         Beta_score = fobj(Beta_pos_new);
+%     end
+%     if Delta_score > fobj(Delta_pos_new)
+%         Delta_pos = Delta_pos_new;
+%         Delta_score = fobj(Delta_pos_new);
+%     end
 
+    % use levy flight to create new wolves
+    for i = normal_sum + 1:normal_sum+levy_sum
+        rand_num = randi([1,SearchAgents_no]);
+        Positions(i,:) = Positions(rand_num,:)+0.1*levy_flight()*(Worse_pos-Positions(rand_num,:));
+        for j = 1:size(Positions,2)
+            if Positions(i,j) > ub
+                Positions(i,j) = ub;
+            end
+            if Positions(i,j) < lb
+                Positions(i,j) = lb;
+            end
+        end
+    end
+
+    % use brownian to create new wolves
+    for i = normal_sum+levy_sum + 1:normal_sum+levy_sum+brownian_sum
+        Positions(i,:) = brownian(Positions,lb,ub,Alpha_pos);
+    end
+
+    % use DE+SA to create new wolves
+    for i = normal_sum+levy_sum+brownian_sum+1 : SearchAgents_no
+        rand_num = randi([1,SearchAgents_no]);
+        Positions(i,:) = update_wolf(l,Max_iter,Positions,dim,fobj,lb,ub,fobj(Positions(rand_num,:)),Positions(rand_num,:));
+    end
+
+    if (Alpha_score > fobj(Alpha_pos))
+        Alpha_score = fobj(Alpha_pos);
+        disp('yes')
+    end
+
+    
+    if Beta_score < Alpha_score
+        Alpha_score = Beta_score;
+    end
+    if Delta_score < Alpha_score
+        Alpha_score = Delta_score;
+    end
     l=l+1;
     if (Alpha_score < MIN_SCORE_ALL)
         MIN_SCORE_ALL = Alpha_score;
