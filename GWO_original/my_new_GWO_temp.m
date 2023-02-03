@@ -37,7 +37,7 @@
 %___________________________________________________________________%
 
 % Improved Grey Wolf Optimizer (I-GWO)
-function [Alpha_score,Alpha_pos,Convergence_curve]=IGWO2(dim,N,Max_iter,lb,ub,fobj)
+function [Alpha_score,Alpha_pos,Convergence_curve]=my_new_GWO_temp(dim,N,Max_iter,lb,ub,fobj)
 
 
 lu = [lb .* ones(1, dim); ub .* ones(1, dim)];
@@ -141,11 +141,26 @@ while iter < Max_iter
     for t=1:N
         neighbor(t,:) = (dist_Position(t,:)<=radius(t,t));
         [~,Idx] = find(neighbor(t,:)==1);                   % Equation (11)             
-        random_Idx_neighbor = randi(size(Idx,2),1,dim);
-        
+%         random_Idx_neighbor = randi(size(Idx,2),1,dim);
+        rand_temp_1 = size(Idx,2);
+        rand_temp_2 = randi(N);
+        if(rand_temp_1 == 0)
+            X_DLH(t,:) = Positions(t,:);
+            continue;
+        end
+        diff = Positions(rand_temp_2,:) - Positions(Idx(rand_temp_1),:);
+        trust_score = abs(fobj(Positions(rand_temp_2,:)) - fobj(Positions(Idx(rand_temp_1),:))) / (norm(diff,2)+0.01);
+        rand_choose = (1 - exp(-trust_score/10));
+        rand_choose = rand_choose / 8;
         for d=1:dim
-            X_DLH(t,d) = Positions(t,d) + rand .*(Positions(Idx(random_Idx_neighbor(d)),d)...
-                - Positions(r1(t),d));                      % Equation (12)
+            if (fobj(Positions(rand_temp_2,:)) > fobj(Positions(Idx(rand_temp_1),:)))
+                X_DLH(t,d) = Positions(t,d) - rand_choose .*(Positions(rand_temp_1,d)...
+                - Positions(rand_temp_2,d));                      % Equation (12)
+            else
+                X_DLH(t,d) = Positions(t,d) + rand_choose .*(Positions(rand_temp_1,d)...
+                - Positions(rand_temp_2,d));                      % Equation (12)
+            end
+            
         end
         X_DLH(t,:) = boundConstraint(X_DLH(t,:), Positions(t,:), lu);
         Fit_DLH(t) = fobj(X_DLH(t,:));
