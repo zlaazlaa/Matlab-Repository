@@ -161,7 +161,7 @@ while l<Max_iter
 
     if (Alpha_score > fobj(Alpha_pos))
         Alpha_score = fobj(Alpha_pos);
-        disp('yes')
+        %disp('yes')
     end
 
     

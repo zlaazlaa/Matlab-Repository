@@ -1,4 +1,4 @@
-function [Alpha_score,Alpha_pos,Convergence_curve]=my_new_GWO(SearchAgents_no,Max_iter,lb,ub,dim,fobj)
+function [Alpha_score,Alpha_pos,Convergence_curve]=my_new_GWO_with_PSO(SearchAgents_no,Max_iter,lb,ub,dim,fobj)
 
 % initialize alpha, beta, and delta_pos
 Alpha_pos=zeros(1,dim);
@@ -17,12 +17,13 @@ Convergence_curve=zeros(1,Max_iter);
 
 l=0;% Loop counter
 best_of_every=Positions;
-best_score_of_every=Inf(1,SearchAgents_no);
+best_score_of_every=inf;
 best_of_whole=Positions(1,:);
 best_score_of_whole=inf;
 
 % Main loop
 while l<Max_iter
+    PSO_weight = (Max_iter - l)/Max_iter;
     for i=1:size(Positions,1)  
         
        % Return back the search agents that go beyond the boundaries of the search space
@@ -32,15 +33,17 @@ while l<Max_iter
         
         % Calculate objective function for each search agent
         fitness=fobj(Positions(i,:));
-        if fitness < best_score_of_every
-            best_score_of_every = fitness;
-            best_of_every(i,:) = Positions(i,:);
-        end
+
+        % update every and whole best
         if fitness < best_score_of_whole
             best_score_of_whole = fitness;
             best_of_whole = Positions(i,:);
         end
-
+        if fitness < best_score_of_every
+            best_score_of_every = fitness;
+            best_of_every(i,:) = Positions(i,:);
+        end
+        
         % Update Alpha, Beta, and Delta
         if fitness<Alpha_score 
             Alpha_score=fitness; % Update alpha
@@ -100,17 +103,25 @@ while l<Max_iter
     %% Myxomycetes information exchange
     old_position = Positions;
     for i = 1:SearchAgents_no % position to be changed
-        %for j = 1:SearchAgents_no % neighbor selected
-        j = randi([1,SearchAgents_no]);
-        diff = old_position(i) - old_position(j);
-        trust_score = abs(fobj(old_position(i,:)) - fobj(old_position(j,:))) / (norm(diff,2)+0.01);
-        if (fobj(old_position(i,:)) - fobj(old_position(j,:)) > 0)
-            Positions(i,:) = Positions(i,:) - 0.1 * (1 - exp(-trust_score)) * diff;
-        else
-            Positions(i,:) = Positions(i,:) + 0.1 * (1 - exp(-trust_score)) * diff;
+        rand_wolf_push = zeros(1,dim);
+        for w = 1:SearchAgents_no/10 % neighbor selected
+            j = randi([1,size(Positions,1)]);
+            diff = old_position(i,:) - old_position(j,:);
+            trust_score = abs(fobj(old_position(i,:)) - fobj(old_position(j,:))) / (norm(diff,2)+0.01);
+            if (fobj(old_position(i,:)) - fobj(old_position(j,:)) > 0)
+                rand_wolf_push = rand_wolf_push - 0.1 * (1 - exp(-trust_score)) * diff;
+            else
+                rand_wolf_push = rand_wolf_push + 0.1 * (1 - exp(-trust_score)) * diff;
+            end
         end
-        %end
-        Positions(i,:) = Positions(i,:) + 0.5 * rand() * (best_of_whole - Positions(i,:)) + 0.5 * rand() * (best_of_every(i,:) - Positions(i,:));
+
+        % use pso
+        pso_push=rand()*(best_of_every(i,:)-old_position(i,:)) + rand()*(best_of_whole-old_position(i,:));
+        
+        % integration
+        Positions(i,:) = old_position(i,:) + rand() * rand_wolf_push + rand() * pso_push;
+
+
         for j = 1:dim % prevent error solution
             if Positions(i,j) > ub
                 Positions(i,j) = ub;

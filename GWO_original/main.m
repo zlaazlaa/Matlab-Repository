@@ -37,7 +37,7 @@ for kw = 1:22
     if kw == 17
         continue
     end
-    SearchAgents_no=50; % Number of search agents
+    SearchAgents_no=100; % Number of search agents
     Function_name=strcat('F', num2str(kw)); % Name of the test function that can be from F1 to F23 (Table 1,2,3 in the paper)
 
     Max_iteration=500; % Maximum numbef of iterations
@@ -54,6 +54,7 @@ for kw = 1:22
     [my_Best_score4,my_Best_pos4,my_GWO_cg_curve4]=my_new_GWO_temp(dim,SearchAgents_no,Max_iteration,lb,ub,fobj);
     [my_Best_score5,my_Best_pos5,my_GWO_cg_curve5]=my_new_GWO_with_PSO(SearchAgents_no,Max_iteration,lb,ub,dim,fobj);
     [my_Best_score6,my_Best_pos6,my_GWO_cg_curve6]=my_new_GWO_master_slave(SearchAgents_no,Max_iteration,lb,ub,dim,fobj);
+    [my_Best_score7,my_Best_pos7,my_GWO_cg_curve7]=GWO_NianJun(SearchAgents_no,Max_iteration,lb,ub,dim,fobj);
     %figure('Position',[500 500 660 290])
     fig = figure(Visible="on");
     % Draw search space
@@ -76,6 +77,7 @@ for kw = 1:22
     %semilogy(my_GWO_cg_curve4, 'Color', 'yellow');
     semilogy(my_GWO_cg_curve5, 'Color', [0.5 0.2 0.2]);
     semilogy(my_GWO_cg_curve6, 'Color', [0.8 0.2 0.5]);
+    semilogy(my_GWO_cg_curve7, 'Color', [0.2 0.5 0.1]);
     title('Objective space')
     xlabel('Iteration');
     ylabel('Best score obtained so far');
@@ -84,7 +86,7 @@ for kw = 1:22
     grid on
     box on
     %legend('GWO', 'myGWO', 'PSO', 'SCA', 'best-GWO', 'my-new-GWO', 'best-GWO-temp', 'my_GWO_with_PSO');
-    legend('GWO', 'myGWO', 'PSO', 'SCA', 'my-new-GWO', 'my-GWO-with-PSO', 'my-GWO-master-slave');
+    legend('GWO', 'myGWO', 'PSO', 'SCA', 'my-new-GWO', 'my-GWO-with-PSO', 'my-GWO-master-slave', 'GWO-NianJun');
     asdas = num2str(kw);
     disp(asdas)
     file_name = strcat('C:\Users\28898\OneDrive\Documents\MATLAB\GWO_original\all_fun\', num2str(kw), '.png');

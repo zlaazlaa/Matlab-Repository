@@ -44,39 +44,57 @@ Delta_score2=inf; %change this to -inf for maximization problems
 best_best=inf;
 num_1=0;
 num_2=0;
+group_num=10;
+Alpha_score_list = zeros(1,group_num);
 while l<Max_iter
-    [Alpha_score1,Positions] = Sub_GWO(1,round(SearchAgents_no/2),Positions,fobj,ub,lb,dim,Max_iter,l);
-    [Alpha_score2,Positions] = Sub_GWO(round(SearchAgents_no/2) + 1,SearchAgents_no,Positions,fobj,ub,lb,dim,Max_iter,l);
-    
+    group_size = round(SearchAgents_no/group_num);
+    for i = 1:group_num
+        [Alpha_score_list(i),Positions] = Sub_GWO(group_size*(i-1) + 1,group_size*(i-1)+group_size,Positions,fobj,ub,lb,dim,Max_iter,l);
+    end
+    for i=1:group_num
+        if best_best > Alpha_score_list(i)
+            best_best = Alpha_score_list(i);
+        end
+    end
     l=l+1;
-    if (Alpha_score1 > Alpha_score2)
-        num_1 = num_1 + 1;
-        num_2 = 0;
-        Alpha_score1 = Alpha_score2;
-    else
-        num_2 = num_2 + 1;
-        num_1 = 0;
+    [~,index] = sort(Alpha_score_list);
+    % update bad group
+    for i = round(group_num/2):group_num
+        orgin_i = index(i);
+        for j = group_size*(orgin_i-1) + 1:group_size*orgin_i
+            rand_num = randi([group_size*(orgin_i-1) + 1, group_size*orgin_i]);
+            Positions(j,:) = update_wolf(l,Max_iter,Positions,dim,fobj,lb,ub,fobj(Positions(rand_num,:)),Positions(rand_num,:));
+        end
     end
-    if (best_best > Alpha_score1)
-        best_best = Alpha_score1;
-    end
+    
+%     if (Alpha_score1 > Alpha_score2)
+%         num_1 = num_1 + 1;
+%         num_2 = 0;z
+%         Alpha_score1 = Alpha_score2;
+%     else
+%         num_2 = num_2 + 1;
+%         num_1 = 0;
+%     end
+%     if (best_best > Alpha_score1)
+%         best_best = Alpha_score1;
+%     end
 
-    disp(num_1);
+%     disp(num_1);
     % update wolf if it sleep for a long time
-    if(num_1 > 2)
-        disp('sleep1');
-        for i = 1:round(SearchAgents_no/2)
-            rand_num = randi([1,round(SearchAgents_no/2)]);
-            Positions(i,:) = update_wolf(l,Max_iter,Positions,dim,fobj,lb,ub,fobj(Positions(rand_num,:)),Positions(rand_num,:));
-        end
-    end
-    if(num_2 > 2)
-        disp('sleep2');
-        for i = round(SearchAgents_no/2)+1:SearchAgents_no
-            rand_num = randi([round(SearchAgents_no/2)+1,SearchAgents_no]);
-            Positions(i,:) = update_wolf(l,Max_iter,Positions,dim,fobj,lb,ub,fobj(Positions(rand_num,:)),Positions(rand_num,:));
-        end
-    end
+%     if(num_1 > 2)
+%         disp('sleep1');
+%         for i = 1:round(SearchAgents_no/2)
+%             rand_num = randi([1,round(SearchAgents_no/2)]);
+%             Positions(i,:) = update_wolf(l,Max_iter,Positions,dim,fobj,lb,ub,fobj(Positions(rand_num,:)),Positions(rand_num,:));
+%         end
+%     end
+%     if(num_2 > 2)
+%         disp('sleep2');
+%         for i = round(SearchAgents_no/2)+1:SearchAgents_no
+%             rand_num = randi([round(SearchAgents_no/2)+1,SearchAgents_no]);
+%             Positions(i,:) = update_wolf(l,Max_iter,Positions,dim,fobj,lb,ub,fobj(Positions(rand_num,:)),Positions(rand_num,:));
+%         end
+%     end
 
 
     

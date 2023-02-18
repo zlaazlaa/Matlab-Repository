@@ -30,14 +30,14 @@ function [new_wolf, new_score] = update_wolf(l, Max_iter, Positions, dim, fobj, 
 %         Alpha_pos = mid_wolf;
 %     end
     if Delta < 0  % uphill move (good move)
-        disp('better')
+        %disp('better')
         Alpha_score = new_alpha_score;
         Alpha_pos = mid_wolf;
     else % downhill move (bad move)
         P=exp(-Delta/ (l + 1));
-        disp('same')
+        %disp('same')
         if rand()<=P
-            disp('worse')
+            %disp('worse')
             Alpha_score = new_alpha_score;
             Alpha_pos = mid_wolf;
         end

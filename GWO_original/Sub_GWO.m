@@ -1,29 +1,15 @@
-function [Alpha_score,Alpha_pos,Convergence_curve]=my_new_GWO(SearchAgents_no,Max_iter,lb,ub,dim,fobj)
+function [Alpha_score,Positions] = Sub_GWO(start_i,end_i,Positions,fobj,ub,lb,dim, Max_iter,l)
+    % initialize alpha, beta, and delta_pos
+    Alpha_pos=zeros(1,dim);
+    Alpha_score=inf; %change this to -inf for maximization problems
+    
+    Beta_pos=zeros(1,dim);
+    Beta_score=inf; %change this to -inf for maximization problems
+    
+    Delta_pos=zeros(1,dim);
+    Delta_score=inf; %change this to -inf for maximization problems
 
-% initialize alpha, beta, and delta_pos
-Alpha_pos=zeros(1,dim);
-Alpha_score=inf; %change this to -inf for maximization problems
-
-Beta_pos=zeros(1,dim);
-Beta_score=inf; %change this to -inf for maximization problems
-
-Delta_pos=zeros(1,dim);
-Delta_score=inf; %change this to -inf for maximization problems
-
-%Initialize the positions of search agents
-Positions=initialization(SearchAgents_no,dim,ub,lb);
-
-Convergence_curve=zeros(1,Max_iter);
-
-l=0;% Loop counter
-best_of_every=Positions;
-best_score_of_every=Inf(1,SearchAgents_no);
-best_of_whole=Positions(1,:);
-best_score_of_whole=inf;
-
-% Main loop
-while l<Max_iter
-    for i=1:size(Positions,1)  
+    for i=start_i:end_i
         
        % Return back the search agents that go beyond the boundaries of the search space
         Flag4ub=Positions(i,:)>ub;
@@ -32,14 +18,14 @@ while l<Max_iter
         
         % Calculate objective function for each search agent
         fitness=fobj(Positions(i,:));
-        if fitness < best_score_of_every
-            best_score_of_every = fitness;
-            best_of_every(i,:) = Positions(i,:);
-        end
-        if fitness < best_score_of_whole
-            best_score_of_whole = fitness;
-            best_of_whole = Positions(i,:);
-        end
+%         if fitness < best_score_of_every
+%             best_score_of_every = fitness;
+%             best_of_every(i,:) = Positions(i,:);
+%         end
+%         if fitness < best_score_of_whole
+%             best_score_of_whole = fitness;
+%             best_of_whole = Positions(i,:);
+%         end
 
         % Update Alpha, Beta, and Delta
         if fitness<Alpha_score 
@@ -62,7 +48,7 @@ while l<Max_iter
     a=2-l*((2)/Max_iter); % a decreases linearly fron 2 to 0
     
     % Update the Position of search agents including omegas
-    for i=1:size(Positions,1) % wolves
+    for i=start_i:end_i
         for j=1:size(Positions,2) % dim
                        
             r1=rand(); % r1 is a random number in [0,1]
@@ -99,9 +85,9 @@ while l<Max_iter
 
     %% Myxomycetes information exchange
     old_position = Positions;
-    for i = 1:SearchAgents_no % position to be changed
+    for i = start_i:end_i % position to be changed
         %for j = 1:SearchAgents_no % neighbor selected
-        j = randi([1,SearchAgents_no]);
+        j = randi([start_i,end_i]);
         diff = old_position(i) - old_position(j);
         trust_score = abs(fobj(old_position(i,:)) - fobj(old_position(j,:))) / (norm(diff,2)+0.01);
         if (fobj(old_position(i,:)) - fobj(old_position(j,:)) > 0)
@@ -110,7 +96,7 @@ while l<Max_iter
             Positions(i,:) = Positions(i,:) + 0.1 * (1 - exp(-trust_score)) * diff;
         end
         %end
-        Positions(i,:) = Positions(i,:) + 0.5 * rand() * (best_of_whole - Positions(i,:)) + 0.5 * rand() * (best_of_every(i,:) - Positions(i,:));
+        %Positions(i,:) = Positions(i,:) + 0.5 * rand() * (best_of_whole - Positions(i,:)) + 0.5 * rand() * (best_of_every(i,:) - Positions(i,:));
         for j = 1:dim % prevent error solution
             if Positions(i,j) > ub
                 Positions(i,j) = ub;
@@ -123,10 +109,4 @@ while l<Max_iter
             Positions(i,:) = old_position(i,:);
         end
     end
-
-    %disp(Alpha_pos);
-
-    %%
-    l=l+1;    
-    Convergence_curve(l)=Alpha_score;
 end

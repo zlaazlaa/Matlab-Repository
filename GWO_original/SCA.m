@@ -33,7 +33,7 @@
 
 function [Destination_fitness,Destination_position,Convergence_curve]=SCA(N,Max_iteration,lb,ub,dim,fobj)
 
-display('SCA is optimizing your problem');
+%display('SCA is optimizing your problem');
 
 %Initialize the set of random solutions
 X=initialization(N,dim,ub,lb);
@@ -109,7 +109,7 @@ while t<=Max_iteration
     
     % Display the iteration and best optimum obtained so far
     if mod(t,50)==0
-        display(['At iteration ', num2str(t), ' the optimum is ', num2str(Destination_fitness)]);
+        %display(['At iteration ', num2str(t), ' the optimum is ', num2str(Destination_fitness)]);
     end
     
     % Increase the iteration counter
