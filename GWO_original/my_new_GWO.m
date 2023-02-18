@@ -16,6 +16,10 @@ Positions=initialization(SearchAgents_no,dim,ub,lb);
 Convergence_curve=zeros(1,Max_iter);
 
 l=0;% Loop counter
+best_of_every=Positions;
+best_score_of_every=Inf(1,SearchAgents_no);
+best_of_whole=Positions(1,:);
+best_score_of_whole=inf;
 
 % Main loop
 while l<Max_iter
@@ -28,7 +32,15 @@ while l<Max_iter
         
         % Calculate objective function for each search agent
         fitness=fobj(Positions(i,:));
-        
+        if fitness < best_score_of_every
+            best_score_of_every = fitness;
+            best_of_every(i,:) = Positions(i,:);
+        end
+        if fitness < best_score_of_whole
+            best_score_of_whole = fitness;
+            best_of_whole = Positions(i,:);
+        end
+
         % Update Alpha, Beta, and Delta
         if fitness<Alpha_score 
             Alpha_score=fitness; % Update alpha
@@ -93,11 +105,12 @@ while l<Max_iter
         diff = old_position(i) - old_position(j);
         trust_score = abs(fobj(old_position(i,:)) - fobj(old_position(j,:))) / (norm(diff,2)+0.01);
         if (fobj(old_position(i,:)) - fobj(old_position(j,:)) > 0)
-            Positions(i) = Positions(i) - 0.1 * (1 - exp(-trust_score)) * diff;
+            Positions(i,:) = Positions(i,:) - 0.1 * (1 - exp(-trust_score)) * diff;
         else
-            Positions(i) = Positions(i) + 0.1 * (1 - exp(-trust_score)) * diff;
+            Positions(i,:) = Positions(i,:) + 0.1 * (1 - exp(-trust_score)) * diff;
         end
         %end
+        Positions(i,:) = Positions(i,:) + 0.5 * rand() * (best_of_whole - Positions(i,:)) + 0.5 * rand() * (best_of_every(i,:) - Positions(i,:));
         for j = 1:dim % prevent error solution
             if Positions(i,j) > ub
                 Positions(i,j) = ub;
