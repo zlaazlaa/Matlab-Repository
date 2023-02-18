@@ -89,8 +89,10 @@ while l<Max_iter
     old_position = Positions;
     accept=0;
     reject=0;
+    llb = 0.2*(Max_iter - l)/Max_iter;
+    uub = 1-llb;
     for i = 1:SearchAgents_no % position to be changed
-        for w = 1:SearchAgents_no/10 % neighbor selected
+        for w = 1:round(SearchAgents_no/30) % neighbor selected
             j = randi([1,SearchAgents_no]);
             diff = old_position(i,:) - old_position(j,:);
             i_score = fobj(old_position(i,:));
@@ -98,9 +100,9 @@ while l<Max_iter
             trust_score = abs(i_score - j_score) / (norm(diff,2)+0.01);
             %disp(trust_score);
             if (i_score - j_score > 0)
-                Positions(i,:) = Positions(i,:) - rand() * (0.6 * (1 - exp(-trust_score/10)) + 0.2) * diff;
+                Positions(i,:) = Positions(i,:) - (uub * (1 - exp(-trust_score/10)) + llb) * diff;
             else
-                Positions(i,:) = Positions(i,:) + rand() * (0.6 * (1 - exp(-trust_score/10)) + 0.2) * diff;
+                Positions(i,:) = Positions(i,:) + (uub * (1 - exp(-trust_score/10)) + llb) * diff;
             end
         end
         for j = 1:dim % prevent error solution

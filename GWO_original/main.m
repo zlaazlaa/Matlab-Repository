@@ -69,14 +69,14 @@ for kw = 1:22
     %subplot(1,2,2);
     semilogy(GWO_cg_curve,'Color','r')
     hold on
-    semilogy(my_GWO_cg_curve, 'Color', 'g');
+    %semilogy(my_GWO_cg_curve, 'Color', 'g');
     semilogy(PSO_cg_curve, 'Color', 'b');
     semilogy(cg_curve_SCA, 'Color', 'magenta')
     %semilogy(my_GWO_cg_curve2, 'Color', 'black');
-    semilogy(my_GWO_cg_curve3, 'Color', 'cyan');
+    %semilogy(my_GWO_cg_curve3, 'Color', 'cyan');
     %semilogy(my_GWO_cg_curve4, 'Color', 'yellow');
-    semilogy(my_GWO_cg_curve5, 'Color', [0.5 0.2 0.2]);
-    semilogy(my_GWO_cg_curve6, 'Color', [0.8 0.2 0.5]);
+    %semilogy(my_GWO_cg_curve5, 'Color', [0.5 0.2 0.2]);
+    %semilogy(my_GWO_cg_curve6, 'Color', [0.8 0.2 0.5]);
     semilogy(my_GWO_cg_curve7, 'Color', [0.2 0.5 0.1]);
     title('Objective space')
     xlabel('Iteration');
@@ -86,7 +86,7 @@ for kw = 1:22
     grid on
     box on
     %legend('GWO', 'myGWO', 'PSO', 'SCA', 'best-GWO', 'my-new-GWO', 'best-GWO-temp', 'my_GWO_with_PSO');
-    legend('GWO', 'myGWO', 'PSO', 'SCA', 'my-new-GWO', 'my-GWO-with-PSO', 'my-GWO-master-slave', 'GWO-NianJun');
+    legend('GWO', 'PSO', 'SCA', 'GWO-NianJun');
     asdas = num2str(kw);
     disp(asdas)
     file_name = strcat('C:\Users\28898\OneDrive\Documents\MATLAB\GWO_original\all_fun\', num2str(kw), '.png');
