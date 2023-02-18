@@ -37,10 +37,10 @@ for kw = 1:22
     if kw == 17
         continue
     end
-    SearchAgents_no=75; % Number of search agents
+    SearchAgents_no=50; % Number of search agents
     Function_name=strcat('F', num2str(kw)); % Name of the test function that can be from F1 to F23 (Table 1,2,3 in the paper)
 
-    Max_iteration=300; % Maximum numbef of iterations
+    Max_iteration=500; % Maximum numbef of iterations
     
     % Load details of the selected benchmark function
     [lb,ub,dim,fobj]=Get_Functions_details(Function_name);
@@ -52,26 +52,28 @@ for kw = 1:22
     [my_Best_score2,my_Best_pos2,my_GWO_cg_curve2]=IGWO2(dim,SearchAgents_no,Max_iteration,lb,ub,fobj);
     [my_Best_score3,my_Best_pos3,my_GWO_cg_curve3]=my_new_GWO(SearchAgents_no,Max_iteration,lb,ub,dim,fobj);
     [my_Best_score4,my_Best_pos4,my_GWO_cg_curve4]=my_new_GWO_temp(dim,SearchAgents_no,Max_iteration,lb,ub,fobj);
-    figure('Position',[500 500 660 290])
-    fig = figure(Visible="off");
+    [my_Best_score5,my_Best_pos5,my_GWO_cg_curve5]=my_new_GWO_with_PSO(SearchAgents_no,Max_iteration,lb,ub,dim,fobj);
+    %figure('Position',[500 500 660 290])
+    fig = figure(Visible="on");
     % Draw search space
-    subplot(1,2,1);
-    func_plot(Function_name);
-    title('Parameter space')
-    xlabel('x_1');
-    ylabel('x_2');
-    zlabel([Function_name,'( x_1 , x_2 )'])
+%     subplot(1,2,1);
+%     func_plot(Function_name);
+%     title('Parameter space')
+%     xlabel('x_1');
+%     ylabel('x_2');
+%     zlabel([Function_name,'( x_1 , x_2 )'])
     
     %Draw objective space
-    subplot(1,2,2);
+    %subplot(1,2,2);
     semilogy(GWO_cg_curve,'Color','r')
     hold on
     semilogy(my_GWO_cg_curve, 'Color', 'g');
     semilogy(PSO_cg_curve, 'Color', 'b');
     semilogy(cg_curve_SCA, 'Color', 'magenta')
-    semilogy(my_GWO_cg_curve2, 'Color', 'black');
+    %semilogy(my_GWO_cg_curve2, 'Color', 'black');
     semilogy(my_GWO_cg_curve3, 'Color', 'cyan');
-    semilogy(my_GWO_cg_curve4, 'Color', 'yellow');
+    %semilogy(my_GWO_cg_curve4, 'Color', 'yellow');
+    semilogy(my_GWO_cg_curve5, 'Color', [0.5 0.2 0.2]);
     title('Objective space')
     xlabel('Iteration');
     ylabel('Best score obtained so far');
@@ -79,13 +81,14 @@ for kw = 1:22
     axis tight
     grid on
     box on
-    legend('GWO', 'myGWO', 'PSO', 'SCA', 'best-GWO', 'my-new-GWO', 'best-GWO-temp');
+    %legend('GWO', 'myGWO', 'PSO', 'SCA', 'best-GWO', 'my-new-GWO', 'best-GWO-temp', 'my_GWO_with_PSO');
+    legend('GWO', 'myGWO', 'PSO', 'SCA', 'my-new-GWO', 'my_GWO_with_PSO');
     asdas = num2str(kw);
     disp(asdas)
-    file_name = strcat('C:\Users\zlaa\Documents\MATLAB\GWO_original\all_fun\', num2str(kw), '.png');
+    file_name = strcat('C:\Users\28898\OneDrive\Documents\MATLAB\GWO_original\all_fun\', num2str(kw), '.png');
     frame = getframe(fig);
     %imwrite(frame.cdata, file_name, 'png', 600);
-    print(fig, '-dpng', '-r600', strcat('C:\Users\zlaa\Documents\MATLAB\GWO_original\all_fun\', num2str(kw), '.png'))  
+    print(fig, '-dpng', '-r600', strcat('C:\Users\28898\OneDrive\Documents\MATLAB\GWO_original\all_fun\', num2str(kw), '.png'))  
     display(['The best solution obtained by GWO is : ', num2str(Best_pos)]);
     display(['The best optimal value of the objective funciton found by GWO is : ', num2str(Best_score)]);
     disp('-------------------------------')
