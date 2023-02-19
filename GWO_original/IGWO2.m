@@ -37,7 +37,7 @@
 %___________________________________________________________________%
 
 % Improved Grey Wolf Optimizer (I-GWO)
-function [Alpha_score,Alpha_pos,Convergence_curve]=IGWO2(dim,N,Max_iter,lb,ub,fobj)
+function [Alpha_score,Alpha_pos,Convergence_curve]=IGWO(dim,N,Max_iter,lb,ub,fobj)
 
 
 lu = [lb .* ones(1, dim); ub .* ones(1, dim)];

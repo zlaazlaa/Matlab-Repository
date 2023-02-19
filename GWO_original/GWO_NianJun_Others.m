@@ -1,4 +1,4 @@
-function [Alpha_score,Alpha_pos,Convergence_curve]=GWO_NianJun(SearchAgents_no,Max_iter,lb,ub,dim,fobj)
+function [Alpha_score,Alpha_pos,Convergence_curve]=GWO_NianJun_Others(SearchAgents_no,Max_iter,lb,ub,dim,fobj)
 
 % initialize alpha, beta, and delta_pos
 Alpha_pos=zeros(1,dim);
@@ -14,8 +14,12 @@ Delta_score=inf; %change this to -inf for maximization problems
 Positions=initialization(SearchAgents_no,dim,ub,lb);
 
 Convergence_curve=zeros(1,Max_iter);
-
 l=0;% Loop counter
+
+best_of_every=Positions;
+best_score_of_every=Inf(1,SearchAgents_no);
+best_of_whole=Positions(1,:);
+best_score_of_whole=inf;
 
 % Main loop
 while l<Max_iter
@@ -28,7 +32,15 @@ while l<Max_iter
         
         % Calculate objective function for each search agent
         fitness=fobj(Positions(i,:));
-        
+        if (fitness < best_score_of_whole)
+            best_score_of_whole = fitness;
+            best_of_whole = Positions(i,:);
+        end
+        if (fitness < best_score_of_every(i))
+            best_score_of_every(i) = fitness;
+            best_of_every(i,:) = Positions(i,:);
+        end
+
         % Update Alpha, Beta, and Delta
         if fitness<Alpha_score 
             Alpha_score=fitness; % Update alpha
@@ -89,10 +101,11 @@ while l<Max_iter
     old_position = Positions;
     accept=0;
     reject=0;
-    llb = 0.2*(Max_iter - l)/Max_iter;
+    llb = 0.2*(Max_iter - l)/Max_iter + 0.1;
+%     llb = 0.2*(Max_iter - l)/Max_iter;
     uub = 1-llb;
     for i = 1:SearchAgents_no % position to be changed
-        for w = 1:round(SearchAgents_no/50) % neighbor selected
+        for w = 1:round(SearchAgents_no/10) % neighbor selected
             j = randi([1,SearchAgents_no]);
             diff = old_position(i,:) - old_position(j,:);
             i_score = fobj(old_position(i,:));
@@ -100,9 +113,9 @@ while l<Max_iter
             trust_score = abs(i_score - j_score) / (norm(diff,2)+0.01);
             %disp(trust_score);
             if (i_score - j_score > 0)
-                Positions(i,:) = Positions(i,:) - (uub * (1 - exp(-trust_score/10)) + llb) * diff;
+                Positions(i,:) = Positions(i,:) - (uub * (1 - exp(-trust_score/100)) + llb) * diff;
             else
-                Positions(i,:) = Positions(i,:) + (uub * (1 - exp(-trust_score/10)) + llb) * diff;
+                Positions(i,:) = Positions(i,:) + (uub * (1 - exp(-trust_score/100)) + llb) * diff;
             end
         end
         for j = 1:dim % prevent error solution
@@ -121,8 +134,47 @@ while l<Max_iter
         end
     end
     accept_curve(l+1)=accept/(accept+reject);
-    if (accept/(accept+reject) == 0)
-        aaa = 11;
+    if (accept_curve(l+1) == 1)
+        asdasd = 1231;
+    end
+    if (accept/(accept+reject) < 0.05)
+%         disp('rebuild');
+%         for w = 1:round(SearchAgents_no/10)
+%             old_version = Positions(w,:);
+%             rand_num = randi([1,SearchAgents_no]);
+%             DIFF = Positions(w,:) - Positions(rand_num,:);
+%             DIFF = DIFF / norm(DIFF,2);
+% %             Positions(w,:) = Positions(rand_num,:)+0.1*levy_flight()*(Worse_pos-Positions(rand_num,:));
+%             Positions(w,:) = Positions(w,:) + 0.5 * levy_flight() * DIFF;
+%             for j = 1:size(Positions,2)
+%                 if (Positions(w,j) > ub)
+%                     Positions(w,j) = ub;
+%                 end
+%                 if (Positions(w,j) < lb)
+%                     Positions(w,j) = lb;
+%                 end
+%             end
+%             if(fobj(Positions(w,:)) > fobj(old_version))    
+%                 Positions(w,:) = old_version;
+%             end
+%         end
+
+%         disp('rebuild2-PSO');
+%         for w = 1:round(SearchAgents_no/5)
+%             old_version = Positions(w,:);
+%             Positions(w,:) = Positions(w,:) + 2 * rand() * (best_of_whole - Positions(w,:)) + 2 * rand() * (best_of_every(w,:) - Positions(w,:));
+%             for j = 1:size(Positions,2)
+%                 if (Positions(w,j) > ub)
+%                     Positions(w,j) = ub;
+%                 end
+%                 if (Positions(w,j) < lb)
+%                     Positions(w,j) = lb;
+%                 end
+%             end
+%             if(fobj(Positions(w,:)) > fobj(old_version))    
+%                 Positions(w,:) = old_version;
+%             end
+%         end
     end
 
     %disp(Alpha_pos);
