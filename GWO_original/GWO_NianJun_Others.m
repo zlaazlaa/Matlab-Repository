@@ -20,7 +20,8 @@ best_of_every=Positions;
 best_score_of_every=Inf(1,SearchAgents_no);
 best_of_whole=Positions(1,:);
 best_score_of_whole=inf;
-
+figure();
+plot(5,2);
 % Main loop
 while l<Max_iter
     for i=1:size(Positions,1)  
@@ -55,6 +56,7 @@ while l<Max_iter
         if fitness>Alpha_score && fitness>Beta_score && fitness<Delta_score 
             Delta_score=fitness; % Update delta
             Delta_pos=Positions(i,:);
+            Delta_id = i;
         end
     end
     
@@ -92,7 +94,10 @@ while l<Max_iter
             D_delta=abs(C3*Delta_pos(j)-Positions(i,j)); % Equation (3.5)-part 3
             X3=Delta_pos(j)-A3*D_delta; % Equation (3.5)-part 3             
             
-            Positions(i,j)=(X1+X2+X3)/3;% Equation (3.7)
+            w1 = norm(X1,2)/(norm(X1,2) + norm(X2,2) + norm(X3,2));
+            w2 = norm(X2,2)/(norm(X1,2) + norm(X2,2) + norm(X3,2));
+            w3 = norm(X3,2)/(norm(X1,2) + norm(X2,2) + norm(X3,2));
+            Positions(i,j)=(w1*X1+w2*X2+w3*X3)/3;% Equation (3.7)
             
         end
     end
@@ -101,7 +106,8 @@ while l<Max_iter
     old_position = Positions;
     accept=0;
     reject=0;
-    llb = 0.2*(Max_iter - l)/Max_iter + 0.1;
+    llb = 0.4*(Max_iter - l)/Max_iter + 0.2;
+    llb = llb * rand();
 %     llb = 0.2*(Max_iter - l)/Max_iter;
     uub = 1-llb;
     for i = 1:SearchAgents_no % position to be changed
@@ -113,9 +119,9 @@ while l<Max_iter
             trust_score = abs(i_score - j_score) / (norm(diff,2)+0.01);
             %disp(trust_score);
             if (i_score - j_score > 0)
-                Positions(i,:) = Positions(i,:) - (uub * (1 - exp(-trust_score/100)) + llb) * diff;
+                Positions(i,:) = Positions(i,:) - (uub * (1 - exp(-trust_score/1)) + llb) * diff;
             else
-                Positions(i,:) = Positions(i,:) + (uub * (1 - exp(-trust_score/100)) + llb) * diff;
+                Positions(i,:) = Positions(i,:) + (uub * (1 - exp(-trust_score/1)) + llb) * diff;
             end
         end
         for j = 1:dim % prevent error solution
@@ -137,7 +143,7 @@ while l<Max_iter
     if (accept_curve(l+1) == 1)
         asdasd = 1231;
     end
-    if (accept/(accept+reject) < 0.05)
+    if (accept/(accept+reject) < 0.5)
 %         disp('rebuild');
 %         for w = 1:round(SearchAgents_no/10)
 %             old_version = Positions(w,:);
@@ -158,7 +164,7 @@ while l<Max_iter
 %                 Positions(w,:) = old_version;
 %             end
 %         end
-
+% 
 %         disp('rebuild2-PSO');
 %         for w = 1:round(SearchAgents_no/5)
 %             old_version = Positions(w,:);
@@ -175,6 +181,40 @@ while l<Max_iter
 %                 Positions(w,:) = old_version;
 %             end
 %         end
+
+%         disp('rebuild3-levy-on-single-wolf')
+% %         rand_wolf = randi([1,SearchAgents_no]);
+%         rand_wolf = Delta_id;
+%         rand_wolf_pos = Positions(rand_wolf,:);
+%         Delta_score = fobj(rand_wolf_pos);
+%         for t=1:Max_iter %%%%%%% 这里也许可以改
+%             b=1;
+%             a=0;
+%             r = (b-a).*rand(dim,1) + a;
+%             r = r/norm(r,2);
+%             change_k = 0.5 * levy_flight();
+%             if abs(change_k) > 0.6 * ub
+%                 change_k = 0.5 * levy_flight();
+%                 disp('up');
+%             end
+%             rand_wolf_pos = rand_wolf_pos + change_k * r.';
+%             for j = 1:dim
+%                 if rand_wolf_pos(j) > ub
+%                     rand_wolf_pos(j) = ub;
+%                 end
+%                 if rand_wolf_pos(j) < lb
+%                     rand_wolf_pos(j) = lb;
+%                 end
+%             end
+%             new_score = fobj(rand_wolf_pos);
+%             if new_score < Delta_score
+%                 Delta_score = new_score;
+%                 Positions(rand_wolf,:) = rand_wolf_pos;
+%             end
+%         end
+%         plot(l+1,accept_curve(l+1),'.','Color','g','MarkerSize',30);
+%         hold on;
+% %         text(l+1,accept_curve(l+1),'q');
     end
 
     %disp(Alpha_pos);
@@ -183,5 +223,5 @@ while l<Max_iter
     l=l+1;    
     Convergence_curve(l)=Alpha_score;
 end
-figure();
 plot(accept_curve);
+% text(10,3,'qeeq');

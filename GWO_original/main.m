@@ -33,8 +33,8 @@
 %__________________________________________
 
 clear all
-profile -historysize 500000000
-profile on
+% profile -historysize 500000000
+% profile on
 for kw = 1:22
     if kw == 17
         continue
@@ -42,7 +42,7 @@ for kw = 1:22
     SearchAgents_no=100; % Number of search agents
     Function_name=strcat('F', num2str(kw)); % Name of the test function that can be from F1 to F23 (Table 1,2,3 in the paper)
 
-    Max_iteration=100; % Maximum numbef of iterations
+    Max_iteration=500; % Maximum numbef of iterations
     
     % Load details of the selected benchmark function
     [lb,ub,dim,fobj]=Get_Functions_details(Function_name);
@@ -101,4 +101,4 @@ for kw = 1:22
     display(['The best optimal value of the objective funciton found by GWO is : ', num2str(Best_score)]);
     disp('-------------------------------')
 end
-profile viewer
+% profile viewer
